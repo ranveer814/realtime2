@@ -99,7 +99,7 @@ async def index():
         }
 
         // Fetch the latest location every 1 second
-        setInterval(fetchLatestLocation, 1000);
+        setInterval(fetchLatestLocation, 500);
     </script>
 </body>
 </html>
