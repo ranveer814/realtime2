@@ -55,49 +55,54 @@ async def get_csv():
 async def index():
     # Return a simple HTML page with a map for real-time tracking
     return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Real-Time Location Tracking</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-        <style>
-            body { font-family: Arial, sans-serif; }
-            h1 { color: #333; }
-            #map { height: 600px; width: 100%; }
-        </style>
-    </head>
-    <body>
-        <h1>Real-Time Location Tracking</h1>
-        <div id="map"></div>
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-        <script>
-            // Initialize the map
-            var map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India (adjust as needed)
+   <!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Location Tracking</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { color: #333; }
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Location Tracking</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map with a specific zoom level
+        var map = L.map('map').setView([20.5937, 78.9629], 15); // Set to a constant zoom level
 
-            // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-            }).addTo(map);
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
 
-            var marker;
+        var marker;
 
-            async function fetchLatestLocation() {
-                const response = await fetch('/latest-location');
+        async function fetchLatestLocation() {
+            const response = await fetch('/latest-location?unique_id=YOUR_UNIQUE_ID');  // Add the unique ID query parameter
+            if (response.ok) {
                 const data = await response.json();
                 if (marker) {
                     map.removeLayer(marker);  // Remove the old marker
                 }
                 marker = L.marker([data.latitude, data.longitude]).addTo(map);
-                map.setView([data.latitude, data.longitude], 15);  // Center the map on the new location
+                // Set the view without changing the zoom level
+                map.setView([data.latitude, data.longitude]);  // Center the map on the new location
+            } else {
+                console.error("Error fetching location:", response.statusText);
             }
+        }
 
-            // Fetch the latest location every 5 seconds
-            setInterval(fetchLatestLocation, 5000);
-        </script>
-    </body>
-    </html>
+        // Fetch the latest location every 5 seconds
+        setInterval(fetchLatestLocation, 5000);
+    </script>
+</body>
+</html>
     """
 
 @app.get("/latest-location")
